@@ -1,0 +1,48 @@
+name: Build Debug
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'TorchVision version (e.g., 0.18.0)'
+        required: true
+        default: ''
+      run-on:
+        description: 'Run on which OS?'
+        required: true
+        default: 'macos-13'
+
+jobs:
+  debug_session:
+    runs-on: ${{ github.event.inputs.run-on }}
+    steps:
+      - name: Restore TorchVision source from cache
+        id: restore-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: vision
+          key: vision-${{ github.event.inputs.version }}
+
+      - name: Clone TorchVision repo
+        if: steps.restore-cache.outputs.cache-hit != 'true'
+        run: |
+          echo "🎯 Using manually provided tag: v${{ github.event.inputs.version }}"
+
+          git clone --depth 1 --branch "v${{ github.event.inputs.version }}" --recursive https://github.com/pytorch/vision.git vision
+          cd vision
+          git submodule update --init --recursive --depth 1 || git submodule update --init --recursive --depth 10 || git submodule update --init --recursive
+
+      - name: Save TorchVision source to cache
+        id: cache-save
+        if: steps.restore-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: vision
+          key: vision-${{ github.event.inputs.version }}
+
+      - name: Install dependencies
+        run: |
+          brew install ccache
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
