@@ -67,7 +67,7 @@ jobs:
           python${{ matrix.python_version }} -m venv venv
           source venv/bin/activate
           pip install --upgrade pip setuptools wheel
-          pip install torch-${${TORCH_VERSION}}-cp$PY_SHORT-cp$PY_SHORT-macosx_11_0_$CMAKE_OSX_ARCHITECTURES.whl
+          pip install torch-${TORCH_VERSION}-cp$PY_SHORT-cp$PY_SHORT-macosx_11_0_$CMAKE_OSX_ARCHITECTURES.whl
           pip install --force-reinstall cmake==3.25.2 numpy==1.26.4
 
           python setup.py bdist_wheel --plat-name=macosx_11_0_$CMAKE_OSX_ARCHITECTURES
