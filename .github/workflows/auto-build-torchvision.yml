@@ -96,7 +96,49 @@ jobs:
       - name: Build wheel
         run: |
           set -e
+          brew install ninja jpeg
+          sudo xcode-select --switch /Applications/Xcode_14.3.app
+
+          export BUILD_VERSION=${VERSION}
+          export MAX_JOBS=$(sysctl -n hw.logicalcpu)
+          if [ "$MAX_JOBS" -gt 4 ]; then
+              export MAX_JOBS=4
+          fi
+          export TORCHVISION_INCLUDE="/usr/local/opt/jpeg/include"
+          export TORCHVISION_LIBRARY="/usr/local/opt/jpeg/lib"
+
+          export CMAKE_OSX_ARCHITECTURES="x86_64"
+          export _PYTHON_HOST_PLATFORM="macosx-10.13-$CMAKE_OSX_ARCHITECTURES"
+          export MACOSX_DEPLOYMENT_TARGET=11.0
+          export CC="/Applications/Xcode_14.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+          export CXX="/Applications/Xcode_14.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++"
+          export SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
+          export LDSHARED="clang -bundle -undefined dynamic_lookup -isysroot $SDKROOT -arch $CMAKE_OSX_ARCHITECTURES"
+
+          PY_SHORT=$(echo "${{ matrix.python_version }}" | sed 's/\.//')
+
+          wget https://github.com/Morton-Li/PyTorch-MacOS-Builder/releases/download/v${TORCH_VERSION}/torch-${TORCH_VERSION}-cp$PY_SHORT-cp$PY_SHORT-macosx_11_0_$CMAKE_OSX_ARCHITECTURES.whl
+
+          mkdir -p wheels
+
+          python${{ matrix.python_version }} -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip setuptools wheel
+          pip install torch-${TORCH_VERSION}-cp$PY_SHORT-cp$PY_SHORT-macosx_11_0_$CMAKE_OSX_ARCHITECTURES.whl
+          pip install --force-reinstall cmake==3.25.2 numpy==1.26.4
+
+          cd vision
+          git clean -xfd
           
+          python setup.py bdist_wheel --plat-name=macosx_11_0_$CMAKE_OSX_ARCHITECTURES
+
+          cp dist/*.whl ../wheels/
+          cd ..
+          
+          if [ "$(ls wheels/*.whl 2>/dev/null | wc -l)" -eq 0 ]; then
+            echo "❌ No wheel built. Tag will not be created."
+            exit 1
+          fi
 
       - name: Upload wheels as artifact
         uses: actions/upload-artifact@v4
