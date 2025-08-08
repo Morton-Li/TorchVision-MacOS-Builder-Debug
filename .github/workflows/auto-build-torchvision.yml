@@ -96,8 +96,8 @@ jobs:
       - name: Build wheel
         run: |
           set -e
-          brew install ninja jpeg
-          sudo xcode-select --switch /Applications/Xcode_14.3.app
+          brew install jpeg
+          sudo xcode-select --switch /Applications/Xcode_15.2.app
 
           export BUILD_VERSION=${VERSION}
           export MAX_JOBS=$(sysctl -n hw.logicalcpu)
@@ -110,8 +110,8 @@ jobs:
           export CMAKE_OSX_ARCHITECTURES="x86_64"
           export _PYTHON_HOST_PLATFORM="macosx-10.13-$CMAKE_OSX_ARCHITECTURES"
           export MACOSX_DEPLOYMENT_TARGET=11.0
-          export CC="/Applications/Xcode_14.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
-          export CXX="/Applications/Xcode_14.3.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++"
+          export CC="/Applications/Xcode_15.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+          export CXX="/Applications/Xcode_15.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++"
           export SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
           export LDSHARED="clang -bundle -undefined dynamic_lookup -isysroot $SDKROOT -arch $CMAKE_OSX_ARCHITECTURES"
 
