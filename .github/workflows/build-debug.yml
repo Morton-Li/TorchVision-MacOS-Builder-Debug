@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'TorchVision version (e.g., 0.18.0)'
+        description: 'TorchVision version (e.g., 0.23.0)'
         required: true
         default: ''
       run-on:
         description: 'Run on which OS?'
         required: true
-        default: 'macos-13'
+        default: 'macos-15-intel'
 
 jobs:
   debug_session:
