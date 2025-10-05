@@ -72,7 +72,7 @@ jobs:
           key: vision-${{ steps.get_tag.outputs.version }}
 
   build:
-    runs-on: macos-13
+    runs-on: macos-15-intel
     needs: get_latest_tag
     if: needs.get_latest_tag.outputs.skip_build == 'false'
     strategy:
@@ -97,7 +97,7 @@ jobs:
         run: |
           set -e
           brew install jpeg
-          sudo xcode-select --switch /Applications/Xcode_15.2.app
+          sudo xcode-select --switch /Applications/Xcode_16.4.app
 
           export BUILD_VERSION=${VERSION}
           export MAX_JOBS=$(sysctl -n hw.logicalcpu)
@@ -110,8 +110,8 @@ jobs:
           export CMAKE_OSX_ARCHITECTURES="x86_64"
           export _PYTHON_HOST_PLATFORM="macosx-10.13-$CMAKE_OSX_ARCHITECTURES"
           export MACOSX_DEPLOYMENT_TARGET=11.0
-          export CC="/Applications/Xcode_15.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
-          export CXX="/Applications/Xcode_15.2.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++"
+          export CC="/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+          export CXX="/Applications/Xcode_16.4.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++"
           export SDKROOT=$(xcrun --sdk macosx --show-sdk-path)
           export LDSHARED="clang -bundle -undefined dynamic_lookup -isysroot $SDKROOT -arch $CMAKE_OSX_ARCHITECTURES"
 
@@ -125,7 +125,7 @@ jobs:
           source venv/bin/activate
           pip install --upgrade pip setuptools wheel
           pip install torch-${TORCH_VERSION}-cp$PY_SHORT-cp$PY_SHORT-macosx_11_0_$CMAKE_OSX_ARCHITECTURES.whl
-          pip install --force-reinstall cmake==3.25.2 numpy==1.26.4
+          pip install --force-reinstall cmake==3.25.2
 
           cd vision
           git clean -xfd
